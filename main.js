@@ -1,22 +1,42 @@
 const mineflayer = require('mineflayer');
 const { movement } = require('./movement');
 
-const bot = mineflayer.createBot({
-  host: 'rvlionxz.mcsh.io',
-  port: 25565,
-  username: 'AmbaBot',
-  // version: '1.21.5',
-})
+let bot;
 
-bot.on('chat', (username, message) => {
-  if (username === bot.username) return
-  bot.chat(message)
-})
+function createMyBot() {
+  bot = mineflayer.createBot({
+    host: 'rvlionxz.mcsh.io',
+    port: 25565,
+    username: 'AmbaBot',
+    // version: '1.21.5',
+  });
 
-// Log errors and kick reasons:
-bot.on('kicked', console.log)
-bot.on('error', console.log)
+  bot.on('chat', (username, message) => {
+    if (username === bot.username) return;
+    bot.chat(message);
+  });
 
-bot.once('spawn', () => {
+  bot.on('kicked', (reason) => {
+    console.log('Kicked:', reason);
+    reconnect();
+  });
+
+  bot.on('error', (err) => {
+    console.log('Error:', err);
+    reconnect();
+  });
+
+  bot.once('spawn', () => {
+    console.log('Bot spawned!');
     movement(bot);
   });
+}
+
+function reconnect() {
+  console.log('Bot will try to reconnect in 5 seconds...');
+  setTimeout(() => {
+    createMyBot();
+  }, 5000);
+}
+
+createMyBot();
